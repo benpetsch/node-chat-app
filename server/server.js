@@ -10,12 +10,23 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
-io.on('connection', (socket) => {
- console.log('New user connected.');
+io.on('connect', (socket) => {
+  console.log('New user connected.');
 
- socket.on('disconnect', () => {
-   console.log('User was disconnected.')
- });
+  socket.emit('newMessage', {
+    to: 'mike@example.org',
+    text: 'Hey. Whats is going on.',
+    createdAt: 123
+  });
+
+  socket.on('createMessage', (message) => {
+    console.log('createMessage', message)
+    io.emit('newMessage', {
+      from: message.from,
+      text: message.text,
+      createdAt: new Date().getTime()
+    })
+  });
 });
 
 app.use(express.static(publicPath));
